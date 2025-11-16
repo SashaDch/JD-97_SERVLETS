@@ -33,12 +33,14 @@ public class PostController {
         response.getWriter().print(gson.toJson(data));
     }
 
-    public void save(Reader body, HttpServletResponse response) throws IOException {
+    public void save(long id, Reader body, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
         final var gson = new Gson();
         final var post = gson.fromJson(body, Post.class);
-        if (post.getId() == 0L) {
+        if (id <= 0L) {
             post.setId(counter.incrementAndGet());
+        } else {
+            post.setId(id);
         }
         final var data = service.save(post);
         response.getWriter().print(gson.toJson(data));

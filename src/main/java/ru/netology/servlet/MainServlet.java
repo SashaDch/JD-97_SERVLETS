@@ -31,8 +31,14 @@ public class MainServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) {
         try {
+            final Method method;
             final String path = req.getRequestURI();
-            final Method method = Method.valueOf(req.getMethod());
+            try {
+                 method = Method.valueOf(req.getMethod());
+            } catch (IllegalArgumentException e) {
+                resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+                return;
+            }
             if (!path.matches(POSTS_ROOT + "(/\\d+)?")) {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
@@ -49,12 +55,12 @@ public class MainServlet extends HttpServlet {
                 }
                 case POST, PUT -> {
                     synchronized (controller) {
-                        if (method == Method.PUT || id != 0L) {
+                        if (method == Method.PUT || id > 0L) {
                             controller.removeById(id, resp);
                         }
-                        controller.save(req.getReader(), resp);
+                        controller.save(id, req.getReader(), resp);
                     }
-                    if (id == 0L) {
+                    if (id <= 0L) {
                         resp.setStatus(HttpServletResponse.SC_CREATED);
                     } else {
                         resp.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -65,8 +71,6 @@ public class MainServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
-        } catch (IllegalArgumentException e) {
-            resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
         } catch (NotFoundException e) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } catch (Exception e) {
