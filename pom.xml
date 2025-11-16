@@ -7,6 +7,7 @@
     <groupId>ru.netology</groupId>
     <artifactId>JD-97_SERVLETS</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>24</maven.compiler.source>
